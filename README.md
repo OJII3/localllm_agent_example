@@ -1,8 +1,8 @@
 # OpenCode OpenRouter Free Model Example
 
-OpenCode から OpenRouter の無料モデル `qwen/qwen3-coder:free` を使うための最小構成です。
+OpenCode の TUI から OpenRouter に接続し、無料モデル `qwen/qwen3-coder:free` を選んで使うための手順です。
 
-このリポジトリには OpenCode のプロジェクト設定として [opencode.json](./opencode.json) が入っています。リポジトリ直下で `opencode` を起動すると、既定モデルとして `openrouter/qwen/qwen3-coder:free` が使われます。
+このリポジトリには OpenCode の設定ファイルを置いていません。API key の保存や provider / model の選択は、OpenCode の `/connect` 画面に任せます。
 
 ## 対象環境
 
@@ -15,18 +15,18 @@ Windows では OpenCode を WSL Ubuntu 側で動かします。PowerShell では
 
 - OpenRouter の無料モデル `qwen/qwen3-coder:free` を OpenCode から使う。
 - ローカルモデルのダウンロードや GPU / メモリ調整なしで OpenCode を試す。
-- WSL Ubuntu と macOS で同じ `opencode.json` を使う。
+- API key を shell 設定ファイルやプロジェクトファイルに書かず、OpenCode の TUI で保存する。
 
-`qwen/qwen3-coder:free` は OpenRouter 上の free variant です。API キーは必要ですが、モデルの input / output token price は `0` です。無料枠には rate limit があり、未課金アカウントでは `:free` モデルは 50 requests/day、20 requests/minute が OpenRouter の公式上限です。
+`qwen/qwen3-coder:free` は OpenRouter 上の free variant です。API key は必要ですが、モデルの input / output token price は `0` です。無料枠には rate limit があり、未課金アカウントでは `:free` モデルは 50 requests/day、20 requests/minute が OpenRouter の公式上限です。
 
 ## 全体の流れ
 
 1. OpenCode をインストールする。
 2. OpenRouter の API key を作る。
-3. `OPENROUTER_API_KEY` を設定する。
-4. このリポジトリへ移動する。
-5. OpenCode から `openrouter/qwen/qwen3-coder:free` が見えることを確認する。
-6. OpenCode を起動する。
+3. このリポジトリへ移動する。
+4. OpenCode を起動する。
+5. `/connect` で OpenRouter に接続する。
+6. `qwen/qwen3-coder:free` を選ぶ。
 
 ## WSL Ubuntu
 
@@ -56,36 +56,9 @@ opencode --version
 1. <https://openrouter.ai/keys> を開く。
 2. OpenRouter アカウントでサインインする。
 3. `Create Key` から API key を作る。
-4. 作った key を手元に控える。
+4. 作った key を控える。
 
-API key は `sk-or-...` で始まります。`opencode.json` や README に直接書かないでください。
-
-### 4. API key を設定する
-
-今開いているターミナルだけで試す場合は、次を実行してから API key を貼り付けます。入力内容は画面に表示されません。
-
-```sh
-read -r -s OPENROUTER_API_KEY
-export OPENROUTER_API_KEY
-```
-
-毎回設定したくない場合は、`~/.bashrc` に次の行を追加します。
-
-```sh
-export OPENROUTER_API_KEY="sk-or-..."
-```
-
-追加後、新しい Ubuntu ターミナルを開くか、次を実行します。
-
-```sh
-source ~/.bashrc
-```
-
-設定されているか確認します。
-
-```sh
-test -n "$OPENROUTER_API_KEY" && echo "OPENROUTER_API_KEY is set"
-```
+API key は `sk-or-...` で始まります。README や Git に保存するファイルへ直接書かないでください。
 
 ## macOS + Homebrew
 
@@ -114,36 +87,9 @@ opencode --version
 1. <https://openrouter.ai/keys> を開く。
 2. OpenRouter アカウントでサインインする。
 3. `Create Key` から API key を作る。
-4. 作った key を手元に控える。
+4. 作った key を控える。
 
-API key は `sk-or-...` で始まります。`opencode.json` や README に直接書かないでください。
-
-### 4. API key を設定する
-
-今開いているターミナルだけで試す場合は、次を実行してから API key を貼り付けます。入力内容は画面に表示されません。
-
-```sh
-read -r -s OPENROUTER_API_KEY
-export OPENROUTER_API_KEY
-```
-
-毎回設定したくない場合は、`~/.zshrc` に次の行を追加します。
-
-```sh
-export OPENROUTER_API_KEY="sk-or-..."
-```
-
-追加後、新しいターミナルを開くか、次を実行します。
-
-```sh
-source ~/.zshrc
-```
-
-設定されているか確認します。
-
-```sh
-test -n "$OPENROUTER_API_KEY" && echo "OPENROUTER_API_KEY is set"
-```
+API key は `sk-or-...` で始まります。README や Git に保存するファイルへ直接書かないでください。
 
 ## 起動手順
 
@@ -152,7 +98,7 @@ test -n "$OPENROUTER_API_KEY" && echo "OPENROUTER_API_KEY is set"
 ### 1. このリポジトリへ移動する
 
 ```sh
-git clone <this-repository-url>
+git clone https://github.com/OJII3/localllm_agent_example.git
 cd localllm_agent_example
 ```
 
@@ -160,89 +106,54 @@ cd localllm_agent_example
 
 ```sh
 pwd
-ls opencode.json
 ```
 
-### 2. OpenRouter の API key が使えるか確認する
-
-```sh
-curl https://openrouter.ai/api/v1/key \
-  -H "Authorization: Bearer $OPENROUTER_API_KEY"
-```
-
-JSON が返れば API key は読めています。`401` が返る場合は API key が間違っているか、環境変数が設定されていません。
-
-### 3. OpenCode からモデルが見えるか確認する
-
-```sh
-opencode models openrouter
-```
-
-次のように表示されれば設定は読めています。
-
-```text
-openrouter/qwen/qwen3-coder:free
-```
-
-### 4. OpenCode の実行を確認する
-
-```sh
-opencode run "Reply with OK only."
-```
-
-`OK` と返れば、OpenCode から OpenRouter の `qwen/qwen3-coder:free` への通信は成功です。
-
-### 5. OpenCode を起動する
+### 2. OpenCode を起動する
 
 ```sh
 opencode
 ```
 
-起動後、必要に応じて `/models` を開き、`openrouter/qwen/qwen3-coder:free` が選ばれていることを確認してください。
+### 3. `/connect` で OpenRouter に接続する
 
-## 設定ファイル
+OpenCode の TUI が開いたら、入力欄に次を入れて Enter を押します。
 
-このリポジトリの [opencode.json](./opencode.json) は、OpenRouter を OpenAI-compatible provider として OpenCode に登録しています。
-
-```json
-{
-  "model": "openrouter/qwen/qwen3-coder:free",
-  "small_model": "openrouter/qwen/qwen3-coder:free",
-  "provider": {
-    "openrouter": {
-      "npm": "@ai-sdk/openai-compatible",
-      "name": "OpenRouter",
-      "options": {
-        "baseURL": "https://openrouter.ai/api/v1",
-        "apiKey": "{env:OPENROUTER_API_KEY}",
-        "timeout": 600000,
-        "chunkTimeout": 300000
-      },
-      "models": {
-        "qwen/qwen3-coder:free": {
-          "name": "Qwen3 Coder 480B A35B (free)",
-          "limit": {
-            "context": 1048576,
-            "output": 65536
-          }
-        }
-      }
-    }
-  }
-}
+```text
+/connect
 ```
 
-`apiKey` は環境変数 `OPENROUTER_API_KEY` から読みます。API key を `opencode.json` に直接書く運用は避けてください。
+表示された provider 一覧から `OpenRouter` を選びます。
 
-別のプロジェクトでも同じ設定を使いたい場合は、そのプロジェクトのルートに `opencode.json` を置いてください。全プロジェクト共通にしたい場合は、OpenCode のユーザー設定ディレクトリに置く運用もできます。
+API key の入力欄が出たら、OpenRouter で作った API key を貼り付けます。入力した API key は OpenCode 側に保存されるため、`OPENROUTER_API_KEY` を shell に設定する必要はありません。
+
+### 4. 無料モデルを選ぶ
+
+モデル選択画面で `qwen/qwen3-coder:free` を選びます。
+
+見つからない場合は、検索欄に次のどちらかを入力してください。
+
+```text
+qwen3-coder
+```
+
+```text
+free
+```
+
+選択後、チャット欄で短く動作確認します。
+
+```text
+Reply with OK only.
+```
+
+`OK` と返れば、OpenCode から OpenRouter の `qwen/qwen3-coder:free` への通信は成功です。
 
 ## よくある確認コマンド
 
-OpenRouter の API key 情報を見る。
+OpenCode に保存済みの認証情報を見る。
 
 ```sh
-curl https://openrouter.ai/api/v1/key \
-  -H "Authorization: Bearer $OPENROUTER_API_KEY"
+opencode auth list
 ```
 
 OpenCode が認識している OpenRouter モデルを見る。
@@ -251,39 +162,28 @@ OpenCode が認識している OpenRouter モデルを見る。
 opencode models openrouter
 ```
 
-OpenCode に保存済みの認証情報を見る。
-
-```sh
-opencode auth list
-```
-
-この README の構成では `OPENROUTER_API_KEY` を使うため、`opencode auth list` に OpenRouter が出ていなくても問題ありません。
-
 ## トラブルシュート
 
-### `opencode models openrouter` に目的のモデルが出ない
+### `/connect` に OpenRouter が出ない
 
-`opencode.json` があるディレクトリで実行しているか確認してください。
+OpenCode が古い可能性があります。OpenCode を更新してからもう一度確認してください。
 
-```sh
-ls opencode.json
-```
-
-それでも出ない場合は、OpenCode が古い可能性があります。OpenCode を更新してからもう一度確認してください。
-
-### `OPENROUTER_API_KEY` が設定されていない
-
-次で確認します。
+WSL Ubuntu の場合:
 
 ```sh
-test -n "$OPENROUTER_API_KEY" && echo "OPENROUTER_API_KEY is set"
+curl -fsSL https://opencode.ai/install | bash
 ```
 
-何も表示されない場合は、API key を設定し直してください。
+macOS の場合:
 
-### `401 Unauthorized` が返る
+```sh
+brew update
+brew upgrade opencode
+```
 
-API key が間違っているか、古い key を使っています。<https://openrouter.ai/keys> で新しい key を作り、`OPENROUTER_API_KEY` を設定し直してください。
+### API key が通らない
+
+API key が間違っているか、古い key を使っています。<https://openrouter.ai/keys> で新しい key を作り、`/connect` から OpenRouter に接続し直してください。
 
 ### `429 Too Many Requests` が返る
 
@@ -295,7 +195,7 @@ OpenRouter のアカウント残高がマイナスの場合、free model でも 
 
 ### モデルが一時的に使えない
 
-OpenRouter の free model は availability が変わることがあります。`qwen/qwen3-coder:free` が使えない場合は、OpenRouter の free model 一覧から別の `:free` モデル ID を選び、[opencode.json](./opencode.json) の `model`、`small_model`、`provider.openrouter.models` を同じ ID に差し替えてください。
+OpenRouter の free model は availability が変わることがあります。`qwen/qwen3-coder:free` が使えない場合は、OpenRouter の free model 一覧から別の `:free` モデルを選んでください。
 
 ## 参考
 
