@@ -1,33 +1,34 @@
-# Local LLM Agent Example
+# OpenCode OpenRouter Free Model Example
 
-OpenCode からローカルの Ollama モデル `qwen3.5:2b` を使うための最小構成です。
+OpenCode から OpenRouter の無料モデル `qwen/qwen3-coder:free` を使うための最小構成です。
 
-このリポジトリには OpenCode のプロジェクト設定として [opencode.json](./opencode.json) が入っています。リポジトリ直下で `opencode` を起動すると、既定モデルとして `ollama/qwen3.5:2b` が使われます。
+このリポジトリには OpenCode のプロジェクト設定として [opencode.json](./opencode.json) が入っています。リポジトリ直下で `opencode` を起動すると、既定モデルとして `openrouter/qwen/qwen3-coder:free` が使われます。
 
 ## 対象環境
 
 - Windows + WSL Ubuntu
 - macOS + Homebrew
 
+Windows では OpenCode を WSL Ubuntu 側で動かします。PowerShell ではなく、Ubuntu のターミナル内で作業してください。この README では WSL Ubuntu 自体のセットアップは済んでいる前提にします。
+
 ## できること
 
-- Ollama で `qwen3.5:2b` をローカル実行する。
-- OpenCode から Ollama の OpenAI-compatible API を使う。
-- API キーなしで、手元の PC だけで OpenCode の基本動作を試す。
+- OpenRouter の無料モデル `qwen/qwen3-coder:free` を OpenCode から使う。
+- ローカルモデルのダウンロードや GPU / メモリ調整なしで OpenCode を試す。
+- WSL Ubuntu と macOS で同じ `opencode.json` を使う。
 
-`qwen3.5:2b` は約 2.7 GB のモデルです。Ollama のモデルページでは 256K context window、Text / Image 入力として公開されています。OpenCode のような coding agent では長めの context window が必要になりやすいため、この README では `OLLAMA_CONTEXT_LENGTH=32000` を指定して Ollama server を起動します。
+`qwen/qwen3-coder:free` は OpenRouter 上の free variant です。API キーは必要ですが、モデルの input / output token price は `0` です。無料枠には rate limit があり、未課金アカウントでは `:free` モデルは 50 requests/day、20 requests/minute が OpenRouter の公式上限です。
 
 ## 全体の流れ
 
-1. OpenCode と Ollama をインストールする。
-2. Ollama server を起動する。
-3. `qwen3.5:2b` をダウンロードする。
-4. OpenCode から `ollama/qwen3.5:2b` が見えることを確認する。
-5. OpenCode を起動する。
+1. OpenCode をインストールする。
+2. OpenRouter の API key を作る。
+3. `OPENROUTER_API_KEY` を設定する。
+4. このリポジトリへ移動する。
+5. OpenCode から `openrouter/qwen/qwen3-coder:free` が見えることを確認する。
+6. OpenCode を起動する。
 
 ## WSL Ubuntu
-
-Windows では OpenCode を WSL Ubuntu 側で動かします。PowerShell ではなく、Ubuntu のターミナル内で作業してください。この README では WSL Ubuntu 自体のセットアップは済んでいる前提にします。
 
 ### 1. Ubuntu 側の基本ツールを入れる
 
@@ -36,19 +37,7 @@ sudo apt update
 sudo apt install -y curl git ca-certificates
 ```
 
-### 2. Ollama を入れる
-
-```sh
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-確認します。
-
-```sh
-ollama --version
-```
-
-### 3. OpenCode を入れる
+### 2. OpenCode を入れる
 
 ```sh
 curl -fsSL https://opencode.ai/install | bash
@@ -62,9 +51,43 @@ opencode --version
 
 インストール直後に `opencode: command not found` になる場合は、新しい Ubuntu ターミナルを開き直してください。
 
-## macOS + Homebrew
+### 3. OpenRouter API key を作る
 
-macOS では Homebrew で Ollama と OpenCode を入れます。
+1. <https://openrouter.ai/keys> を開く。
+2. OpenRouter アカウントでサインインする。
+3. `Create Key` から API key を作る。
+4. 作った key を手元に控える。
+
+API key は `sk-or-...` で始まります。`opencode.json` や README に直接書かないでください。
+
+### 4. API key を設定する
+
+今開いているターミナルだけで試す場合は、次を実行してから API key を貼り付けます。入力内容は画面に表示されません。
+
+```sh
+read -r -s OPENROUTER_API_KEY
+export OPENROUTER_API_KEY
+```
+
+毎回設定したくない場合は、`~/.bashrc` に次の行を追加します。
+
+```sh
+export OPENROUTER_API_KEY="sk-or-..."
+```
+
+追加後、新しい Ubuntu ターミナルを開くか、次を実行します。
+
+```sh
+source ~/.bashrc
+```
+
+設定されているか確認します。
+
+```sh
+test -n "$OPENROUTER_API_KEY" && echo "OPENROUTER_API_KEY is set"
+```
+
+## macOS + Homebrew
 
 ### 1. Homebrew を更新する
 
@@ -72,19 +95,7 @@ macOS では Homebrew で Ollama と OpenCode を入れます。
 brew update
 ```
 
-### 2. Ollama を入れる
-
-```sh
-brew install ollama
-```
-
-確認します。
-
-```sh
-ollama --version
-```
-
-### 3. OpenCode を入れる
+### 2. OpenCode を入れる
 
 OpenCode は公式 docs で最新リリース用の tap が案内されています。
 
@@ -98,41 +109,47 @@ brew install anomalyco/tap/opencode
 opencode --version
 ```
 
+### 3. OpenRouter API key を作る
+
+1. <https://openrouter.ai/keys> を開く。
+2. OpenRouter アカウントでサインインする。
+3. `Create Key` から API key を作る。
+4. 作った key を手元に控える。
+
+API key は `sk-or-...` で始まります。`opencode.json` や README に直接書かないでください。
+
+### 4. API key を設定する
+
+今開いているターミナルだけで試す場合は、次を実行してから API key を貼り付けます。入力内容は画面に表示されません。
+
+```sh
+read -r -s OPENROUTER_API_KEY
+export OPENROUTER_API_KEY
+```
+
+毎回設定したくない場合は、`~/.zshrc` に次の行を追加します。
+
+```sh
+export OPENROUTER_API_KEY="sk-or-..."
+```
+
+追加後、新しいターミナルを開くか、次を実行します。
+
+```sh
+source ~/.zshrc
+```
+
+設定されているか確認します。
+
+```sh
+test -n "$OPENROUTER_API_KEY" && echo "OPENROUTER_API_KEY is set"
+```
+
 ## 起動手順
 
-以降の手順は WSL Ubuntu と macOS で共通です。ターミナルを 2 つ使います。
+以降の手順は WSL Ubuntu と macOS で共通です。
 
-### 1. ターミナル A で Ollama server を起動する
-
-```sh
-OLLAMA_CONTEXT_LENGTH=32000 ollama serve
-```
-
-このコマンドは起動し続けます。OpenCode を使っている間は、このターミナルを閉じないでください。
-
-既に別の Ollama server が動いていて `address already in use` のようなエラーが出る場合は、先に止めます。
-
-```sh
-pkill ollama
-```
-
-macOS で Ollama アプリを起動している場合は、メニューバーの Ollama から終了してから、上の `ollama serve` を実行してください。
-
-### 2. ターミナル B でモデルを取得する
-
-```sh
-ollama pull qwen3.5:2b
-```
-
-ダウンロード後、モデル情報を確認します。
-
-```sh
-ollama show qwen3.5:2b
-```
-
-`Capabilities` に `tools` が含まれていれば、OpenCode の tool calling 用途でも使いやすい状態です。
-
-### 3. このリポジトリへ移動する
+### 1. このリポジトリへ移動する
 
 ```sh
 git clone <this-repository-url>
@@ -146,88 +163,105 @@ pwd
 ls opencode.json
 ```
 
-### 4. OpenCode からモデルが見えるか確認する
+### 2. OpenRouter の API key が使えるか確認する
 
 ```sh
-opencode models ollama
+curl https://openrouter.ai/api/v1/key \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY"
+```
+
+JSON が返れば API key は読めています。`401` が返る場合は API key が間違っているか、環境変数が設定されていません。
+
+### 3. OpenCode からモデルが見えるか確認する
+
+```sh
+opencode models openrouter
 ```
 
 次のように表示されれば設定は読めています。
 
 ```text
-ollama/qwen3.5:2b
+openrouter/qwen/qwen3-coder:free
 ```
 
-### 5. OpenCode の実行を確認する
+### 4. OpenCode の実行を確認する
 
 ```sh
 opencode run "Reply with OK only."
 ```
 
-`OK` と返れば、OpenCode から Ollama の `qwen3.5:2b` への通信は成功です。
+`OK` と返れば、OpenCode から OpenRouter の `qwen/qwen3-coder:free` への通信は成功です。
 
-### 6. OpenCode を起動する
+### 5. OpenCode を起動する
 
 ```sh
 opencode
 ```
 
-起動後、必要に応じて `/models` を開き、`ollama/qwen3.5:2b` が選ばれていることを確認してください。
+起動後、必要に応じて `/models` を開き、`openrouter/qwen/qwen3-coder:free` が選ばれていることを確認してください。
 
 ## 設定ファイル
 
-このリポジトリの [opencode.json](./opencode.json) は、Ollama を OpenAI-compatible provider として OpenCode に登録しています。
+このリポジトリの [opencode.json](./opencode.json) は、OpenRouter を OpenAI-compatible provider として OpenCode に登録しています。
 
 ```json
 {
-  "model": "ollama/qwen3.5:2b",
-  "small_model": "ollama/qwen3.5:2b",
+  "model": "openrouter/qwen/qwen3-coder:free",
+  "small_model": "openrouter/qwen/qwen3-coder:free",
   "provider": {
-    "ollama": {
+    "openrouter": {
       "npm": "@ai-sdk/openai-compatible",
+      "name": "OpenRouter",
       "options": {
-        "baseURL": "http://127.0.0.1:11434/v1",
+        "baseURL": "https://openrouter.ai/api/v1",
+        "apiKey": "{env:OPENROUTER_API_KEY}",
         "timeout": 600000,
         "chunkTimeout": 300000
+      },
+      "models": {
+        "qwen/qwen3-coder:free": {
+          "name": "Qwen3 Coder 480B A35B (free)",
+          "limit": {
+            "context": 1048576,
+            "output": 65536
+          }
+        }
       }
     }
   }
 }
 ```
 
-`timeout` はリクエスト全体の上限で、ここでは 10 分にしています。`chunkTimeout` は streamed response の次の chunk を待つ上限で、ここでは 5 分にしています。ローカルモデルは初回ロードや長い推論で応答の間隔が空くことがあるため、既定値より余裕を持たせています。
+`apiKey` は環境変数 `OPENROUTER_API_KEY` から読みます。API key を `opencode.json` に直接書く運用は避けてください。
 
 別のプロジェクトでも同じ設定を使いたい場合は、そのプロジェクトのルートに `opencode.json` を置いてください。全プロジェクト共通にしたい場合は、OpenCode のユーザー設定ディレクトリに置く運用もできます。
 
 ## よくある確認コマンド
 
-Ollama server が応答しているか確認する。
+OpenRouter の API key 情報を見る。
 
 ```sh
-curl http://127.0.0.1:11434/api/tags
+curl https://openrouter.ai/api/v1/key \
+  -H "Authorization: Bearer $OPENROUTER_API_KEY"
 ```
 
-Ollama に入っているモデルを見る。
+OpenCode が認識している OpenRouter モデルを見る。
 
 ```sh
-ollama list
+opencode models openrouter
 ```
 
-Ollama が現在ロードしているモデルと context を見る。
+OpenCode に保存済みの認証情報を見る。
 
 ```sh
-ollama ps
+opencode auth list
 ```
 
-OpenCode が認識している Ollama モデルを見る。
-
-```sh
-opencode models ollama
-```
+この README の構成では `OPENROUTER_API_KEY` を使うため、`opencode auth list` に OpenRouter が出ていなくても問題ありません。
 
 ## トラブルシュート
 
-### `opencode models ollama` に何も出ない
+### `opencode models openrouter` に目的のモデルが出ない
 
 `opencode.json` があるディレクトリで実行しているか確認してください。
 
@@ -235,66 +269,39 @@ opencode models ollama
 ls opencode.json
 ```
 
-Ollama server が起動しているかも確認します。
+それでも出ない場合は、OpenCode が古い可能性があります。OpenCode を更新してからもう一度確認してください。
+
+### `OPENROUTER_API_KEY` が設定されていない
+
+次で確認します。
 
 ```sh
-curl http://127.0.0.1:11434/api/tags
+test -n "$OPENROUTER_API_KEY" && echo "OPENROUTER_API_KEY is set"
 ```
 
-### `could not connect to ollama server`
+何も表示されない場合は、API key を設定し直してください。
 
-Ollama server が起動していません。ターミナル A で次を実行してください。
+### `401 Unauthorized` が返る
 
-```sh
-OLLAMA_CONTEXT_LENGTH=32000 ollama serve
-```
+API key が間違っているか、古い key を使っています。<https://openrouter.ai/keys> で新しい key を作り、`OPENROUTER_API_KEY` を設定し直してください。
 
-### OpenCode の応答が遅い
+### `429 Too Many Requests` が返る
 
-初回実行時はモデルのロードに時間がかかります。`ollama ps` で `PROCESSOR` と `CONTEXT` を確認してください。CPU に大きく offload されている場合、応答は遅くなります。
+無料枠の rate limit に達しています。OpenRouter の公式制限では、未課金アカウントの `:free` モデルは 50 requests/day、20 requests/minute です。時間を置いてから再実行してください。
 
-### Ollama に `aborting completion request due to client closing the connection` が出る
+### `402` が返る
 
-次のようなログは、Ollama がモデルをロードできなかったという意味ではありません。
+OpenRouter のアカウント残高がマイナスの場合、free model でも `402` が返ることがあります。OpenRouter の key / credit 状態を確認してください。
 
-```text
-offloaded 33/33 layers to GPU
-llama runner started
-aborting completion request due to client closing the connection
-POST "/v1/chat/completions" 500
-```
+### モデルが一時的に使えない
 
-`offloaded 33/33 layers to GPU` と `llama runner started` が出ていれば、モデルのロードは成功しています。`client closing the connection` は、生成完了前に OpenCode 側が接続を閉じた状態です。このリポジトリの `opencode.json` では `timeout` と `chunkTimeout` を長めに設定しています。設定を変えた後は、OpenCode を起動し直してください。
-
-それでも同じログが出る場合は、まず短いプロンプトで確認します。
-
-```sh
-opencode run "Reply with OK only."
-```
-
-短いプロンプトでも失敗する場合は、Ollama server を起動し直します。
-
-```sh
-pkill ollama
-OLLAMA_CONTEXT_LENGTH=32000 ollama serve
-```
-
-### メモリが足りない
-
-`OLLAMA_CONTEXT_LENGTH` を下げて起動し直してください。
-
-```sh
-OLLAMA_CONTEXT_LENGTH=16000 ollama serve
-```
-
-それでも厳しい場合は、より小さいモデルに変えてください。
+OpenRouter の free model は availability が変わることがあります。`qwen/qwen3-coder:free` が使えない場合は、OpenRouter の free model 一覧から別の `:free` モデル ID を選び、[opencode.json](./opencode.json) の `model`、`small_model`、`provider.openrouter.models` を同じ ID に差し替えてください。
 
 ## 参考
 
-- [Ollama Linux install](https://docs.ollama.com/linux)
-- [Ollama macOS install](https://docs.ollama.com/macos)
-- [Ollama context length](https://docs.ollama.com/context-length)
-- [Ollama OpenCode integration](https://docs.ollama.com/integrations/opencode)
-- [Ollama qwen3.5 model page](https://ollama.com/library/qwen3.5)
 - [OpenCode install docs](https://opencode.ai/docs/ja)
-- [OpenCode Ollama provider docs](https://dev.opencode.ai/docs/providers/#ollama)
+- [OpenCode provider docs](https://opencode.ai/docs/providers/)
+- [OpenRouter Qwen3 Coder free model](https://openrouter.ai/qwen/qwen3-coder:free)
+- [OpenRouter free models router](https://openrouter.ai/openrouter/free)
+- [OpenRouter API key page](https://openrouter.ai/keys)
+- [OpenRouter rate limits](https://openrouter.ai/docs/api/reference/limits)
