@@ -19,7 +19,7 @@
       perSystem =
         { pkgs, ... }:
         let
-          model = "qwen3.5:4b";
+          model = "qwen3.5:2b";
 
           tools = [
             pkgs.ollama
@@ -31,7 +31,7 @@
             runtimeInputs = [ pkgs.ollama ];
             text = ''
               export OLLAMA_HOST="''${OLLAMA_HOST:-127.0.0.1:11434}"
-              export OLLAMA_CONTEXT_LENGTH="''${OLLAMA_CONTEXT_LENGTH:-65536}"
+              export OLLAMA_CONTEXT_LENGTH="''${OLLAMA_CONTEXT_LENGTH:-32000}"
 
               exec ollama serve
             '';
