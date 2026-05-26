@@ -186,12 +186,16 @@ opencode
     "ollama": {
       "npm": "@ai-sdk/openai-compatible",
       "options": {
-        "baseURL": "http://127.0.0.1:11434/v1"
+        "baseURL": "http://127.0.0.1:11434/v1",
+        "timeout": 600000,
+        "chunkTimeout": 300000
       }
     }
   }
 }
 ```
+
+`timeout` はリクエスト全体の上限で、ここでは 10 分にしています。`chunkTimeout` は streamed response の次の chunk を待つ上限で、ここでは 5 分にしています。ローカルモデルは初回ロードや長い推論で応答の間隔が空くことがあるため、既定値より余裕を持たせています。
 
 別のプロジェクトでも同じ設定を使いたい場合は、そのプロジェクトのルートに `opencode.json` を置いてください。全プロジェクト共通にしたい場合は、OpenCode のユーザー設定ディレクトリに置く運用もできます。
 
@@ -248,6 +252,32 @@ OLLAMA_CONTEXT_LENGTH=64000 ollama serve
 ### OpenCode の応答が遅い
 
 初回実行時はモデルのロードに時間がかかります。`ollama ps` で `PROCESSOR` と `CONTEXT` を確認してください。CPU に大きく offload されている場合、応答は遅くなります。
+
+### Ollama に `aborting completion request due to client closing the connection` が出る
+
+次のようなログは、Ollama がモデルをロードできなかったという意味ではありません。
+
+```text
+offloaded 33/33 layers to GPU
+llama runner started
+aborting completion request due to client closing the connection
+POST "/v1/chat/completions" 500
+```
+
+`offloaded 33/33 layers to GPU` と `llama runner started` が出ていれば、モデルのロードは成功しています。`client closing the connection` は、生成完了前に OpenCode 側が接続を閉じた状態です。このリポジトリの `opencode.json` では `timeout` と `chunkTimeout` を長めに設定しています。設定を変えた後は、OpenCode を起動し直してください。
+
+それでも同じログが出る場合は、まず短いプロンプトで確認します。
+
+```sh
+opencode run "Reply with OK only."
+```
+
+短いプロンプトでも失敗する場合は、Ollama server を起動し直します。
+
+```sh
+pkill ollama
+OLLAMA_CONTEXT_LENGTH=32000 ollama serve
+```
 
 ### メモリが足りない
 
