@@ -1,0 +1,13 @@
+{
+  "name": "seminar-slides",
+  "version": "1.0.0",
+  "description": "コーディングエージェント入門セミナーのスライド生成",
+  "main": "generate.js",
+  "scripts": {
+    "build": "node generate.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "pptxgenjs": "^4.0.1"
+  }
+}
