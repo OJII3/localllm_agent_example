@@ -29,7 +29,7 @@ const C = {
 const F = { head: "Hiragino Sans", body: "Hiragino Sans", code: "Menlo" };
 const W = 13.33;
 const MX = 0.7;
-const TOTAL = 27;
+const TOTAL = 28;
 
 const shadow = () => ({ type: "outer", color: "000000", blur: 10, offset: 3, angle: 90, opacity: 0.35 });
 
@@ -201,7 +201,7 @@ function check(slide, x, y, d) {
     { t: "知る：エージェントって何？", d: "座学でイメージをつかむ", time: "〜15分", c: C.blue },
     { t: "準備：エージェントを入れる", d: "OpenCode をインストール", time: "〜15分", c: C.purple },
     { t: "つなぐ：AIモデルに接続", d: "APIキーを作って /connect", time: "〜10分", c: C.green },
-    { t: "作る：ToDoアプリを生成", d: "1ファイルのWebアプリを作らせる", time: "〜20分", c: C.orange },
+    { t: "作る：ToDoアプリを生成", d: "複数ファイルに分けて作らせる", time: "〜20分", c: C.orange },
   ];
   const y0 = 2.05, rh = 1.08, gap = 0.13;
   steps.forEach((st, i) => {
@@ -338,12 +338,12 @@ function check(slide, x, y, d) {
     { t: "$ ls", c: C.green },
     { t: "index.html  README.md", c: C.sub },
     { t: "", c: C.sub },
-    { t: "$ open index.html", c: C.green },
-    { t: "# ブラウザでアプリが起動", c: C.muted },
+    { t: "$ python3 -m http.server", c: C.green },
+    { t: "# → localhost:8000 で確認", c: C.muted },
     { t: "", c: C.sub },
     { t: "$ opencode", c: C.green },
-    { t: "> ToDoアプリを作って", c: C.blue },
-    { t: "  作成中: index.html …", c: C.muted },
+    { t: "> ToDoアプリを分割して作って", c: C.blue },
+    { t: "  作成中: src/app.js …", c: C.muted },
   ], { title: "こんな世界です", fontSize: 13 });
   footer(s);
 }
@@ -419,7 +419,7 @@ function check(slide, x, y, d) {
   const flow = [
     { n: "1", t: "入れる", d: "OpenCode を\nインストール", c: C.purple },
     { n: "2", t: "つなぐ", d: "AIモデルに\n/connect", c: C.green },
-    { n: "3", t: "作る", d: "ToDoアプリを\n生成して動かす", c: C.orange },
+    { n: "3", t: "作る", d: "ToDoアプリを\n複数ファイルで生成", c: C.orange },
   ];
   const cw = 3.4, y = 2.5, ch = 2.8;
   const totalW = cw * 3 + 0.9 * 2;
@@ -675,45 +675,161 @@ function check(slide, x, y, d) {
     s.addText(it.d, { x: MX + 0.4, y: yy + 0.64, w: 5.9, h: 0.5, fontSize: 13.5, fontFace: F.body, color: C.sub, align: "left", valign: "middle", margin: 0 });
   });
   codeBlock(s, 7.6, 2.15, 5.0, 4.27, [
-    { t: "> ToDoアプリを作って", c: C.blue },
+    { t: "> ToDoアプリを分割して作って", c: C.blue },
     { t: "", c: C.sub },
-    { t: "  ● 作成中  index.html", c: C.green },
-    { t: "  + <!DOCTYPE html>", c: C.green },
-    { t: "  + <input id=\"task\">", c: C.green },
-    { t: "  …", c: C.muted },
+    { t: "  ● 作成中", c: C.green },
+    { t: "  + index.html", c: C.green },
+    { t: "  + styles.css", c: C.green },
+    { t: "  + src/storage.js", c: C.green },
+    { t: "  + src/todo.js", c: C.green },
+    { t: "  + src/app.js", c: C.green },
     { t: "", c: C.sub },
-    { t: "  ✓ できました", c: C.green },
-    { t: "> ブラウザで開いてみて！", c: C.blue },
+    { t: "  ✓ 5ファイル作成", c: C.green },
   ], { title: "やりとりの例", fontSize: 12.5 });
   footer(s);
 }
 
 // ============================================================
-// 18. STEP6 作るもの: ToDoアプリ (完成形)
+// 18. 1ファイルでは出ない本領
 // ============================================================
 {
   const s = pres.addSlide();
   bg(s);
-  header(s, "Build", C.orange, "STEP 6 ── 今日作るのは ToDo アプリ");
-  // 左: モック
-  const mx = MX, my = 2.05, mw = 5.4, mh = 4.3;
+  header(s, "Build", C.orange, "1ファイルでは出ない “本領”");
+  s.addText("ここからが、チャットにコピペするのと分かれる道です。", { x: MX, y: 1.95, w: W - MX * 2, h: 0.5, fontSize: 16, fontFace: F.body, color: C.sub, align: "left", valign: "middle", margin: 0 });
+  card(s, MX, 2.7, 5.75, 3.5);
+  s.addText("チャット + コピペ", { x: MX + 0.4, y: 2.95, w: 5, h: 0.5, fontSize: 17, fontFace: F.head, bold: true, color: C.blue, align: "left", valign: "middle", margin: 0 });
+  s.addText(
+    [
+      { text: "コードを1つもらってコピペ", options: { bullet: { indent: 18 }, breakLine: true } },
+      { text: "ファイルが増えると破綻しがち", options: { bullet: { indent: 18 }, breakLine: true } },
+      { text: "全体の整合は自分でとる", options: { bullet: { indent: 18 } } },
+    ],
+    { x: MX + 0.4, y: 3.55, w: 5.0, h: 2.4, fontSize: 15, fontFace: F.body, color: C.sub, align: "left", valign: "top", paraSpaceAfter: 12, margin: 0 }
+  );
+  s.addText("→", { x: 6.55, y: 2.7, w: 0.9, h: 3.5, fontSize: 40, fontFace: F.head, bold: true, color: C.muted, align: "center", valign: "middle", margin: 0 });
+  card(s, 7.45, 2.7, 5.15, 3.5, C.panel2);
+  s.addShape(pres.shapes.RECTANGLE, { x: 7.45, y: 2.7, w: 0.09, h: 3.5, fill: { color: C.green }, line: { type: "none" } });
+  s.addText("コーディングエージェント", { x: 7.85, y: 2.95, w: 4.5, h: 0.5, fontSize: 17, fontFace: F.head, bold: true, color: C.green, align: "left", valign: "middle", margin: 0 });
+  s.addText(
+    [
+      { text: "複数ファイルを“まとめて”作る", options: { bullet: { indent: 18 }, breakLine: true } },
+      { text: "ファイルをまたいで直す・整理する", options: { bullet: { indent: 18 }, breakLine: true } },
+      { text: "規模が大きいほど差が出る", options: { bullet: { indent: 18 } } },
+    ],
+    { x: 7.85, y: 3.55, w: 4.4, h: 2.4, fontSize: 15, fontFace: F.body, color: C.text, align: "left", valign: "top", paraSpaceAfter: 12, margin: 0 }
+  );
+  footer(s);
+}
+
+// ============================================================
+// 19. STEP6 作るもの: ToDo を分割して作る
+// ============================================================
+{
+  const s = pres.addSlide();
+  bg(s);
+  header(s, "Build", C.orange, "STEP 6 ── ToDoアプリを “分割して” 作る");
+  codeBlock(s, MX, 2.1, 6.2, 4.25, [
+    { t: "todo-app/", c: C.muted },
+    { t: "  index.html     画面", c: C.sub },
+    { t: "  styles.css     見た目", c: C.sub },
+    { t: "  src/", c: C.muted },
+    { t: "    storage.js   保存（localStorage）", c: C.sub },
+    { t: "    todo.js      追加・完了・削除", c: C.sub },
+    { t: "    app.js       画面とロジックの入口", c: C.sub },
+  ], { title: "ファイル構成（ES Modules）", fontSize: 14 });
+  const feats = [
+    { t: "タスクを追加", d: "入力して「追加」で登録", c: C.green },
+    { t: "完了でチェック", d: "押すと打ち消し線が付く", c: C.blue },
+    { t: "いらないものは削除", d: "× ボタンで消える", c: C.purple },
+    { t: "閉じても残る", d: "localStorage に保存", c: C.orange },
+  ];
+  const fx = 7.3, fw = 5.3, fy0 = 2.1, fh = 0.82, fgap = 0.14;
+  feats.forEach((f, i) => {
+    const fy = fy0 + i * (fh + fgap);
+    card(s, fx, fy, fw, fh);
+    s.addShape(pres.shapes.RECTANGLE, { x: fx, y: fy, w: 0.09, h: fh, fill: { color: f.c }, line: { type: "none" } });
+    s.addText(f.t, { x: fx + 0.4, y: fy + 0.1, w: fw - 0.7, h: 0.4, fontSize: 16, fontFace: F.head, bold: true, color: C.text, align: "left", valign: "middle", margin: 0 });
+    s.addText(f.d, { x: fx + 0.4, y: fy + 0.48, w: fw - 0.7, h: 0.32, fontSize: 12.5, fontFace: F.body, color: C.muted, align: "left", valign: "middle", margin: 0 });
+  });
+  s.addText("分け方も“どう動くか”も、まとめてエージェントにお任せできます。", { x: fx, y: 6.05, w: fw, h: 0.3, fontSize: 12.5, fontFace: F.body, color: C.green, align: "left", valign: "middle", margin: 0 });
+  footer(s);
+}
+
+// ============================================================
+// 20. 分割して、と頼む (プロンプト)
+// ============================================================
+{
+  const s = pres.addSlide();
+  bg(s);
+  header(s, "Build", C.orange, "“分割して” と頼む");
+  s.addText("ファイル構成と役割を伝えるのがコツ。あとはエージェントが一気に作ります。", { x: MX, y: 1.95, w: W - MX * 2, h: 0.5, fontSize: 16, fontFace: F.body, color: C.sub, align: "left", valign: "middle", margin: 0 });
+  codeBlock(s, MX, 2.65, W - MX * 2, 2.95, [
+    { t: "ToDoアプリを作って。ES Modules で次のように分割して：", c: C.text },
+    { t: "  index.html      … 画面", c: C.sub },
+    { t: "  styles.css      … 見た目", c: C.sub },
+    { t: "  src/storage.js  … localStorage への保存", c: C.sub },
+    { t: "  src/todo.js     … 追加・完了・削除のロジック", c: C.sub },
+    { t: "  src/app.js      … 画面とロジックをつなぐ入口", c: C.sub },
+    { t: "タスクの追加・完了チェック・削除ができて、", c: C.text },
+    { t: "リロードしても残るようにして。", c: C.text },
+  ], { title: "OpenCode に貼り付ける指示", fontSize: 14 });
+  const tips = [
+    { t: "ファイル構成を書く", d: "どんなファイルに分けるか" },
+    { t: "役割を一言ずつ", d: "各ファイルが何を担当するか" },
+    { t: "「ES Modules で」", d: "import / export で分割と伝える" },
+  ];
+  const cw = 3.7, gap = 0.42, y = 5.85, ch = 0.95;
+  tips.forEach((it, i) => {
+    const x = MX + i * (cw + gap);
+    card(s, x, y, cw, ch);
+    s.addText(it.t, { x: x + 0.35, y: y + 0.12, w: cw - 0.7, h: 0.42, fontSize: 15, fontFace: F.head, bold: true, color: C.orange, align: "left", valign: "middle", margin: 0 });
+    s.addText(it.d, { x: x + 0.35, y: y + 0.5, w: cw - 0.7, h: 0.35, fontSize: 12, fontFace: F.body, color: C.muted, align: "left", valign: "middle", margin: 0 });
+  });
+  footer(s);
+}
+
+// ============================================================
+// 21. ブラウザで確認 (ローカルサーバー)
+// ============================================================
+{
+  const s = pres.addSlide();
+  bg(s);
+  header(s, "Build", C.orange, "ブラウザで動かしてみる");
+  s.addText("分割したコードは “ローカルサーバー” で開きます。\n（ダブルクリックでは動きません）", { x: MX, y: 1.8, w: 6.0, h: 0.9, fontSize: 15, fontFace: F.body, color: C.sub, align: "left", valign: "top", lineSpacingMultiple: 1.3, margin: 0 });
+  codeBlock(s, MX, 2.85, 5.7, 1.95, [
+    { t: "# プロジェクトのフォルダで", c: C.muted },
+    { t: "$ python3 -m http.server", c: C.green },
+    { t: "", c: C.sub },
+    { t: "# ブラウザで開く", c: C.muted },
+    { t: "→ http://localhost:8000", c: C.blue },
+  ], { title: "ローカルサーバーを起動", fontSize: 13.5 });
+  card(s, MX, 4.95, 5.7, 1.45, C.panel2);
+  s.addShape(pres.shapes.RECTANGLE, { x: MX, y: 4.95, w: 0.09, h: 1.45, fill: { color: C.green }, line: { type: "none" } });
+  s.addText(
+    [
+      { text: "エージェントに頼んでもOK：", options: { color: C.green, bold: true, breakLine: true } },
+      { text: "「このフォルダをローカルサーバーで開いて」と言えば、起動まで任せられます。", options: { color: C.sub } },
+    ],
+    { x: MX + 0.4, y: 4.95, w: 5.1, h: 1.45, fontSize: 13.5, fontFace: F.body, align: "left", valign: "middle", lineSpacingMultiple: 1.3, margin: 0 }
+  );
+  // 右: 完成モック
+  const mx = 6.85, my = 2.1, mw = 5.75, mh = 4.3;
   card(s, mx, my, mw, mh, C.panel2);
   s.addShape(pres.shapes.RECTANGLE, { x: mx + 0.01, y: my + 0.01, w: mw - 0.02, h: 0.42, fill: { color: C.panel3 }, line: { type: "none" } });
   termDots(s, mx + 0.2, my + 0.16);
-  s.addText("My ToDo — index.html", { x: mx + 0.95, y: my + 0.01, w: mw - 1.2, h: 0.42, fontSize: 11, fontFace: F.code, color: C.muted, align: "left", valign: "middle", margin: 0 });
-  // 入力欄 + 追加ボタン
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: mx + 0.4, y: my + 0.75, w: mw - 2.0, h: 0.55, rectRadius: 0.05, fill: { color: C.bg }, line: { color: C.border, width: 1 } });
-  s.addText("牛乳を買う", { x: mx + 0.6, y: my + 0.75, w: mw - 2.3, h: 0.55, fontSize: 13, fontFace: F.body, color: C.muted, align: "left", valign: "middle", margin: 0 });
-  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: mx + mw - 1.45, y: my + 0.75, w: 1.05, h: 0.55, rectRadius: 0.05, fill: { color: C.green }, line: { type: "none" } });
-  s.addText("追加", { x: mx + mw - 1.45, y: my + 0.75, w: 1.05, h: 0.55, fontSize: 14, fontFace: F.head, bold: true, color: C.bg, align: "center", valign: "middle", margin: 0 });
-  // タスク行
+  s.addText("My ToDo  ·  localhost:8000", { x: mx + 0.95, y: my + 0.01, w: mw - 1.2, h: 0.42, fontSize: 11, fontFace: F.code, color: C.muted, align: "left", valign: "middle", margin: 0 });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: mx + 0.4, y: my + 0.78, w: mw - 2.1, h: 0.55, rectRadius: 0.05, fill: { color: C.bg }, line: { color: C.border, width: 1 } });
+  s.addText("牛乳を買う", { x: mx + 0.6, y: my + 0.78, w: mw - 2.4, h: 0.55, fontSize: 13, fontFace: F.body, color: C.muted, align: "left", valign: "middle", margin: 0 });
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: mx + mw - 1.5, y: my + 0.78, w: 1.1, h: 0.55, rectRadius: 0.05, fill: { color: C.green }, line: { type: "none" } });
+  s.addText("追加", { x: mx + mw - 1.5, y: my + 0.78, w: 1.1, h: 0.55, fontSize: 14, fontFace: F.head, bold: true, color: C.bg, align: "center", valign: "middle", margin: 0 });
   const tasks = [
     { t: "レポートを書く", done: true },
     { t: "牛乳を買う", done: false },
     { t: "本を返す", done: false },
   ];
   tasks.forEach((tk, i) => {
-    const ty = my + 1.55 + i * 0.82;
+    const ty = my + 1.58 + i * 0.82;
     s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: mx + 0.4, y: ty, w: mw - 0.8, h: 0.62, rectRadius: 0.04, fill: { color: C.panel }, line: { color: C.border, width: 1 } });
     if (tk.done) {
       s.addShape(pres.shapes.OVAL, { x: mx + 0.6, y: ty + 0.16, w: 0.3, h: 0.3, fill: { color: C.green }, line: { type: "none" } });
@@ -724,68 +840,6 @@ function check(slide, x, y, d) {
     s.addText(tk.t, { x: mx + 1.05, y: ty, w: mw - 2.2, h: 0.62, fontSize: 14, fontFace: F.body, color: tk.done ? C.muted : C.text, strike: tk.done, align: "left", valign: "middle", margin: 0 });
     s.addText("×", { x: mx + mw - 0.75, y: ty, w: 0.4, h: 0.62, fontSize: 18, fontFace: F.head, color: C.muted, align: "center", valign: "middle", margin: 0 });
   });
-  // 右: 機能
-  const feats = [
-    { t: "タスクを追加", d: "入力して「追加」で登録", c: C.green },
-    { t: "完了でチェック", d: "押すと打ち消し線が付く", c: C.blue },
-    { t: "いらないものは削除", d: "× ボタンで消える", c: C.purple },
-    { t: "閉じても残る", d: "localStorage に保存", c: C.orange },
-  ];
-  const fx = 6.5, fw = 6.1, fy0 = 2.05, fh = 0.95, fgap = 0.13;
-  feats.forEach((f, i) => {
-    const fy = fy0 + i * (fh + fgap);
-    card(s, fx, fy, fw, fh);
-    s.addShape(pres.shapes.RECTANGLE, { x: fx, y: fy, w: 0.09, h: fh, fill: { color: f.c }, line: { type: "none" } });
-    s.addText(f.t, { x: fx + 0.4, y: fy + 0.12, w: fw - 0.7, h: 0.42, fontSize: 16, fontFace: F.head, bold: true, color: C.text, align: "left", valign: "middle", margin: 0 });
-    s.addText(f.d, { x: fx + 0.4, y: fy + 0.52, w: fw - 0.7, h: 0.35, fontSize: 12.5, fontFace: F.body, color: C.muted, align: "left", valign: "middle", margin: 0 });
-  });
-  s.addText("ぜんぶ index.html 1ファイルだけ。Node などの環境構築は不要です。", { x: fx, y: 6.45, w: fw, h: 0.4, fontSize: 12.5, fontFace: F.body, color: C.green, align: "left", valign: "middle", margin: 0 });
-  footer(s);
-}
-
-// ============================================================
-// 19. 段階的に頼む (3ステップ)
-// ============================================================
-{
-  const s = pres.addSlide();
-  bg(s);
-  header(s, "Build", C.orange, "コツは “少しずつ” 頼むこと");
-  s.addText("一度に全部より、3回に分けて頼むと無料モデルでも安定して完成します。", { x: MX, y: 1.95, w: W - MX * 2, h: 0.5, fontSize: 16, fontFace: F.body, color: C.sub, align: "left", valign: "middle", margin: 0 });
-  const ps = [
-    { n: "①", t: "骨組み", c: C.green, p: "index.html だけで動く ToDo アプリを作って。入力欄と「追加」ボタンを置いて、入力したタスクが下のリストに並ぶようにして。" },
-    { n: "②", t: "機能を足す", c: C.blue, p: "各タスクにチェックと削除ボタンを付けて。チェックしたら打ち消し線、× を押すと消えるようにして。" },
-    { n: "③", t: "仕上げ", c: C.purple, p: "内容を localStorage に保存して、開き直しても残るようにして。見た目もシンプルに整えて。" },
-  ];
-  const cw = 3.7, gap = 0.42, y = 2.65, ch = 3.75;
-  ps.forEach((it, i) => {
-    const x = MX + i * (cw + gap);
-    card(s, x, y, cw, ch);
-    s.addShape(pres.shapes.RECTANGLE, { x, y, w: cw, h: 0.09, fill: { color: it.c }, line: { type: "none" } });
-    s.addText(it.n, { x: x + 0.35, y: y + 0.35, w: 0.9, h: 0.7, fontSize: 30, fontFace: F.head, bold: true, color: it.c, align: "left", valign: "middle", margin: 0 });
-    s.addText(it.t, { x: x + 1.15, y: y + 0.35, w: cw - 1.4, h: 0.7, fontSize: 19, fontFace: F.head, bold: true, color: C.text, align: "left", valign: "middle", margin: 0 });
-    s.addShape(pres.shapes.ROUNDED_RECTANGLE, { x: x + 0.3, y: y + 1.25, w: cw - 0.6, h: 2.25, rectRadius: 0.05, fill: { color: C.panel2 }, line: { color: C.border, width: 1 } });
-    s.addText(it.p, { x: x + 0.5, y: y + 1.45, w: cw - 1.0, h: 1.9, fontSize: 13, fontFace: F.body, color: C.sub, align: "left", valign: "top", lineSpacingMultiple: 1.35, margin: 0 });
-  });
-  footer(s);
-}
-
-// ============================================================
-// 20. ブラウザで確認
-// ============================================================
-{
-  const s = pres.addSlide();
-  bg(s);
-  header(s, "Build", C.orange, "ブラウザで動かしてみる");
-  s.addText("できた index.html を開けば、もう ToDo アプリが動きます。", { x: MX, y: 1.95, w: W - MX * 2, h: 0.5, fontSize: 16, fontFace: F.body, color: C.sub, align: "left", valign: "middle", margin: 0 });
-  card(s, MX, 2.7, 5.8, 1.6);
-  s.addText("macOS", { x: MX + 0.4, y: 2.95, w: 5, h: 0.45, fontSize: 16, fontFace: F.head, bold: true, color: C.purple, align: "left", valign: "middle", margin: 0 });
-  s.addText("ターミナルで open、またはファイルをダブルクリック。", { x: MX + 0.4, y: 3.4, w: 5.0, h: 0.8, fontSize: 13.5, fontFace: F.body, color: C.sub, align: "left", valign: "top", lineSpacingMultiple: 1.25, margin: 0 });
-  card(s, 6.8, 2.7, 5.8, 1.6);
-  s.addText("Windows (WSL)", { x: 7.2, y: 2.95, w: 5, h: 0.45, fontSize: 16, fontFace: F.head, bold: true, color: C.blue, align: "left", valign: "middle", margin: 0 });
-  s.addText("explorer.exe . でフォルダを開き、index.html をダブルクリック。", { x: 7.2, y: 3.4, w: 5.0, h: 0.8, fontSize: 13.5, fontFace: F.body, color: C.sub, align: "left", valign: "top", lineSpacingMultiple: 1.25, margin: 0 });
-  codeBlock(s, MX, 4.55, 5.8, 1.0, [{ t: "$ open index.html", c: C.green }], { title: "macOS", fontSize: 14 });
-  codeBlock(s, 6.8, 4.55, 5.8, 1.0, [{ t: "$ explorer.exe .", c: C.green }], { title: "WSL", fontSize: 14 });
-  s.addText("タスクを追加して、チェック・削除ができたら成功！", { x: MX, y: 5.8, w: W - MX * 2, h: 0.5, fontSize: 15, fontFace: F.head, bold: true, color: C.green, align: "left", valign: "middle", margin: 0 });
   footer(s);
 }
 
@@ -798,7 +852,7 @@ function check(slide, x, y, d) {
   header(s, "Build", C.orange, "うまくいかない時のコツ");
   s.addText("無料・軽量モデルでも、頼み方を工夫すると安定します。", { x: MX, y: 1.95, w: W - MX * 2, h: 0.5, fontSize: 16, fontFace: F.body, color: C.sub, align: "left", valign: "middle", margin: 0 });
   const tips = [
-    { t: "小さく分けて頼む", d: "さっきの ①→②→③ のように少しずつ。", c: C.green },
+    { t: "小さく分けて頼む", d: "一度に全部より、機能ごとに少しずつ。", c: C.green },
     { t: "具体的に書く", d: "何を・どんな見た目か、はっきり伝える。", c: C.blue },
     { t: "エラーは貼って渡す", d: "出たメッセージをそのまま貼り「直して」。", c: C.purple },
     { t: "もう一度送る", d: "Router が別の無料モデルに切り替わることも。", c: C.orange },
@@ -887,7 +941,7 @@ function check(slide, x, y, d) {
     "コーディングエージェントが何か理解した",
     "OpenCode を自分のPCにインストールした",
     "OpenRouter の無料モデルに接続した",
-    "エージェントに ToDo アプリを作らせた",
+    "複数ファイルの ToDo アプリを作らせた",
   ];
   const y0 = 2.25, rh = 0.92, gap = 0.18;
   done.forEach((t, i) => {
