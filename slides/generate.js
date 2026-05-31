@@ -29,7 +29,7 @@ const C = {
 const F = { head: "Hiragino Sans", body: "Hiragino Sans", code: "Menlo" };
 const W = 13.33;
 const MX = 0.7;
-const TOTAL = 28;
+const TOTAL = 27;
 
 const shadow = () => ({ type: "outer", color: "000000", blur: 10, offset: 3, angle: 90, opacity: 0.35 });
 
@@ -260,7 +260,7 @@ function check(slide, x, y, d) {
   const caps = [
     { t: "ファイルを読む", d: "プロジェクト全体を把握" },
     { t: "ファイルを書く・直す", d: "コードを実際に保存" },
-    { t: "コマンドを実行", d: "ビルド・テスト・起動" },
+    { t: "コマンドを実行", d: "テスト・サーバー起動も" },
     { t: "エラーを読んで直す", d: "結果を見て自分で修正" },
   ];
   const cw = 2.85, gap = 0.31, y = 2.75, ch = 2.15;
@@ -274,9 +274,9 @@ function check(slide, x, y, d) {
   });
   s.addText(
     [
-      { text: "つまり ", options: { color: C.muted } },
-      { text: "「指示すると、自分で手を動かして仕事を進めてくれる」", options: { color: C.text, bold: true } },
-      { text: " のがエージェント。", options: { color: C.muted } },
+      { text: "Webチャットとの一番の違いは ", options: { color: C.muted } },
+      { text: "“手元のPCを直接動かせる”", options: { color: C.text, bold: true } },
+      { text: " こと。だから実際にファイルができて、その場で動かせる。", options: { color: C.muted } },
     ],
     { x: MX, y: 5.35, w: W - MX * 2, h: 0.6, fontSize: 16, fontFace: F.body, align: "left", valign: "middle", margin: 0 }
   );
@@ -626,15 +626,14 @@ function check(slide, x, y, d) {
     [
       { text: "モデル選択画面で ", options: { color: C.sub } },
       { text: "Free Models Router", options: { color: C.green, bold: true } },
-      { text: "（= openrouter/free）を選びます。", options: { color: C.sub } },
+      { text: " を選びます。", options: { color: C.sub } },
     ],
     { x: MX, y: 1.95, w: W - MX * 2, h: 0.5, fontSize: 16.5, fontFace: F.body, align: "left", valign: "middle", margin: 0 }
   );
   codeBlock(s, MX, 2.65, 6.0, 2.0, [
     { t: "# 見つからなければ検索欄に：", c: C.muted },
     { t: "Free Models Router", c: C.green },
-    { t: "# または", c: C.muted },
-    { t: "openrouter/free", c: C.green },
+    { t: "# と入力して絞り込む", c: C.muted },
   ], { title: "モデルを探す", fontSize: 13 });
   card(s, 6.9, 2.65, 5.7, 2.0, C.panel2);
   s.addText("なぜ Router？", { x: 7.3, y: 2.9, w: 5, h: 0.4, fontSize: 15, fontFace: F.head, bold: true, color: C.green, align: "left", valign: "middle", margin: 0 });
@@ -690,40 +689,7 @@ function check(slide, x, y, d) {
 }
 
 // ============================================================
-// 18. 1ファイルでは出ない本領
-// ============================================================
-{
-  const s = pres.addSlide();
-  bg(s);
-  header(s, "Build", C.orange, "1ファイルでは出ない “本領”");
-  s.addText("ここからが、チャットにコピペするのと分かれる道です。", { x: MX, y: 1.95, w: W - MX * 2, h: 0.5, fontSize: 16, fontFace: F.body, color: C.sub, align: "left", valign: "middle", margin: 0 });
-  card(s, MX, 2.7, 5.75, 3.5);
-  s.addText("チャット + コピペ", { x: MX + 0.4, y: 2.95, w: 5, h: 0.5, fontSize: 17, fontFace: F.head, bold: true, color: C.blue, align: "left", valign: "middle", margin: 0 });
-  s.addText(
-    [
-      { text: "コードを1つもらってコピペ", options: { bullet: { indent: 18 }, breakLine: true } },
-      { text: "ファイルが増えると破綻しがち", options: { bullet: { indent: 18 }, breakLine: true } },
-      { text: "全体の整合は自分でとる", options: { bullet: { indent: 18 } } },
-    ],
-    { x: MX + 0.4, y: 3.55, w: 5.0, h: 2.4, fontSize: 15, fontFace: F.body, color: C.sub, align: "left", valign: "top", paraSpaceAfter: 12, margin: 0 }
-  );
-  s.addText("→", { x: 6.55, y: 2.7, w: 0.9, h: 3.5, fontSize: 40, fontFace: F.head, bold: true, color: C.muted, align: "center", valign: "middle", margin: 0 });
-  card(s, 7.45, 2.7, 5.15, 3.5, C.panel2);
-  s.addShape(pres.shapes.RECTANGLE, { x: 7.45, y: 2.7, w: 0.09, h: 3.5, fill: { color: C.green }, line: { type: "none" } });
-  s.addText("コーディングエージェント", { x: 7.85, y: 2.95, w: 4.5, h: 0.5, fontSize: 17, fontFace: F.head, bold: true, color: C.green, align: "left", valign: "middle", margin: 0 });
-  s.addText(
-    [
-      { text: "複数ファイルを“まとめて”作る", options: { bullet: { indent: 18 }, breakLine: true } },
-      { text: "ファイルをまたいで直す・整理する", options: { bullet: { indent: 18 }, breakLine: true } },
-      { text: "規模が大きいほど差が出る", options: { bullet: { indent: 18 } } },
-    ],
-    { x: 7.85, y: 3.55, w: 4.4, h: 2.4, fontSize: 15, fontFace: F.body, color: C.text, align: "left", valign: "top", paraSpaceAfter: 12, margin: 0 }
-  );
-  footer(s);
-}
-
-// ============================================================
-// 19. STEP6 作るもの: ToDo を分割して作る
+// 18. STEP6 作るもの: ToDo を分割して作る
 // ============================================================
 {
   const s = pres.addSlide();
@@ -896,7 +862,7 @@ function check(slide, x, y, d) {
     { t: "# AGENTS.md", c: C.muted },
     { t: "## ルール", c: C.purple },
     { t: "- 返答は日本語で", c: C.sub },
-    { t: "- アプリは index.html 1枚で作る", c: C.sub },
+    { t: "- アプリは複数ファイルに分けて作る", c: C.sub },
     { t: "- 凝った依存は入れない", c: C.sub },
   ], { title: "書き方の例", fontSize: 13 });
   card(s, 7.4, 5.25, 5.2, 1.0, C.panel2);
